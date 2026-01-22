@@ -1,6 +1,7 @@
 from django.urls import path
-from Org import views
+from .views import CheckOrganizationExistsView, CreateOrganizationProfileView
 
 urlpatterns = [
-    path('check-org/', views.CheckOrganizationExistsView.as_view(), name='check-org'),
+    path('check-org/', CheckOrganizationExistsView.as_view(), name='check-org'),
+    path('create-profile/', CreateOrganizationProfileView.as_view(), name='create-profile'),
 ]

@@ -40,6 +40,8 @@ CORS_ALLOWED_ORIGINS = config(
         cast=lambda v: [s.strip() for s in v.split(",")]
     )
 
+CSRF_TRUSTED_ORIGINS = CORS_ALLOWED_ORIGINS
+
 CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
@@ -59,8 +61,10 @@ THIRD_PARTY_APPS = [
 ]
 
 USER_APPS = [
+    'core',
     'Org',
-    'Users'
+    'Users',
+    'academics',
 ]
 
 INSTALLED_APPS = USER_APPS + DJANGO_APPS + THIRD_PARTY_APPS
@@ -147,3 +151,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Email Backend for Development
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'bishamsinchiury1116@gmail.com'
+EMAIL_HOST_PASSWORD = 'hzia piom ikyj jkrk'  # App password without extra quotes
+DEFAULT_FROM_EMAIL = 'bishamsinchiury1116@gmail.com'

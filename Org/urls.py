@@ -2,6 +2,6 @@ from django.urls import path
 from .views import CheckOrganizationExistsView, CreateOrganizationProfileView
 
 urlpatterns = [
-    path('check-org/', CheckOrganizationExistsView.as_view(), name='check-org'),
-    path('create-profile/', CreateOrganizationProfileView.as_view(), name='create-profile'),
+    path('check/', CheckOrganizationExistsView.as_view(), name='check-org'),
+    path('', CreateOrganizationProfileView.as_view(), name='create-profile'),
 ]

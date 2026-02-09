@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 from core.models import TimeStampedModel, TenantModel, SoftDeleteModel
 
 class Organization(TimeStampedModel, SoftDeleteModel):
@@ -7,15 +8,33 @@ class Organization(TimeStampedModel, SoftDeleteModel):
     The root tenant entity. Represents a School or Educational Institution.
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=255, help_text="Legal name of the organization")
-    slug = models.SlugField(max_length=255, unique=True, help_text="Unique URL identifier")
+    org_name = models.CharField(max_length=255, help_text="Legal name of the organization")
     domain_name = models.CharField(max_length=255, unique=True, blank=True, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='organizations')
+    gmail = models.EmailField(help_text="primary gmail of organization")
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['domain_name']),
+        ]
+
+    def __str__(self):
+        return self.org_name
+
+
+class OrganizationProfile(TimeStampedModel, SoftDeleteModel):
+    """
+    Profile details for an Organization.
+    """
+    organization = models.OneToOneField(Organization, on_delete=models.CASCADE, related_name='profile')
+    
+    slug = models.SlugField(max_length=255, unique=True, help_text="Unique URL identifier")
     
     # Legacy/Existing fields support (mapped or kept if needed)
     org_code = models.CharField(max_length=100, unique=True, help_text="Unique code for internal reference")
     
     # Configuration & Branding
-    logo = models.ImageField(upload_to='org_logos/', null=True, blank=True)
+    logo = models.ImageField(upload_to='org_logos/')
     primary_color = models.CharField(max_length=7, default='#6366f1')
     secondary_color = models.CharField(max_length=7, default='#ec4899')
     
@@ -25,24 +44,22 @@ class Organization(TimeStampedModel, SoftDeleteModel):
     address = models.TextField()
     
     # Legal
-    pan_vat_number = models.CharField(max_length=50, blank=True, null=True)
-    established_date = models.DateField(null=True, blank=True)
+    pan_vat_number = models.CharField(max_length=50)
+    established_date = models.DateField()
 
     # AI & Analytics Hooks
     ai_summary = models.JSONField(
         default=dict, 
-        blank=True, 
         help_text="AI-generated summary of the organization state/stats."
     )
     
     class Meta:
         indexes = [
-            models.Index(fields=['domain_name']),
             models.Index(fields=['slug']),
         ]
 
     def __str__(self):
-        return self.name
+        return f"Profile of {self.organization.org_name}"
 
 
 class SubOrganization(TenantModel, SoftDeleteModel):

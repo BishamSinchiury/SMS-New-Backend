@@ -1,17 +1,22 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PersonViewSet, UserViewSet
-from .views_auth import LoginView, LogoutView, MeView, VerifyLoginOTPView
-from .views_otp import GenerateOTPView, VerifyOTPView, SignupView, VerifySignupView
-from .views_profile import ProfileSetupView
-from .views_admin import UserApprovalViewSet
+from Users.views import (
+    UserViewSet, UserManagementViewSet, SystemAdminUserViewSet,
+    LoginView, LogoutView, MeView, VerifyLoginOTPView,
+    GenerateOTPView, VerifyOTPView, SignupView, VerifySignupView, RoleChoicesView,
+    SystemAdminLoginView, SystemAdminVerifyOTPView, ProfileView
+)
 
 router = DefaultRouter()
-router.register(r'people', PersonViewSet, basename='person')
 router.register(r'users', UserViewSet, basename='user')
-router.register(r'approvals', UserApprovalViewSet, basename='user-approval')
+router.register(r'admin/users', UserManagementViewSet, basename='user-management')
+router.register(r'sys-admin/users', SystemAdminUserViewSet, basename='sys-admin-user')
 
 urlpatterns = [
+    # System Admin Flow (Restricted & Secure)
+    path('auth/system/login/', SystemAdminLoginView.as_view(), name='system-auth-login'),
+    path('auth/system/login/verify/', SystemAdminVerifyOTPView.as_view(), name='system-auth-verify'),
+
     # Login Flow
     path('auth/login/', LoginView.as_view(), name='auth-login'),
     path('auth/login/verify-otp/', VerifyLoginOTPView.as_view(), name='auth-login-verify-otp'),
@@ -19,15 +24,18 @@ urlpatterns = [
     # Signup Flow
     path('auth/signup/', SignupView.as_view(), name='auth-signup'),
     path('auth/signup/verify/', VerifySignupView.as_view(), name='auth-signup-verify'),
-    path('auth/profile-setup/', ProfileSetupView.as_view(), name='auth-profile-setup'),
+    path('auth/roles/', RoleChoicesView.as_view(), name='auth-roles'),
 
-    # Deprecated OTP endpoints (kept for backward compatibility)
+    # Deprecated OTP endpoints
     path('auth/otp/generate/', GenerateOTPView.as_view(), name='auth-otp-generate'),
     path('auth/otp/verify/', VerifyOTPView.as_view(), name='auth-otp-verify'),
     
     # Common
     path('auth/logout/', LogoutView.as_view(), name='auth-logout'),
     path('auth/me/', MeView.as_view(), name='auth-me'),
+    
+    # Profile & Verification
+    path('profile/me/', ProfileView.as_view(), name='user-profile'),
     
     # Existing Router
     path('', include(router.urls)),
